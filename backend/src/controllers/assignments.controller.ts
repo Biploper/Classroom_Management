@@ -5,7 +5,7 @@ const createAssignment = async (req, res) => {
         const {title, description, due_date} = req.body;
 
         const assignment = await  db.insert(assignments).values({
-             title, description, dueDate: due_date ? new Date(due_date) : null, 
+             title, description, due_date: due_date ? new Date(due_date) : null, 
         }).returning()
 
          return res.status(201).json({ success: true, message: "Assignment Created Successfully", data: assignment })
