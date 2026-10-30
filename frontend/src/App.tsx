@@ -1,98 +1,60 @@
-
-import { useState } from "react";
-import { Refine } from "@refinedev/core";
-import routerProvider from "@refinedev/react-router";
 import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router";
-import {
-  App as AntdApp,
-  ConfigProvider,
-  theme as antdTheme,
-} from "antd";
-import { RefineThemes } from "@refinedev/antd";
+  Refine,
+  GitHubBanner,
+  WelcomePage,
+  Authenticated,
+} from "@refinedev/core";
+import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
+import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
-import "@refinedev/antd/dist/reset.css";
-import dataProvider from "./providers/data-provider";
-import AssignmentList from "./features/assignments/pages/AssignmentList";
-import AppLayout from "./layouts/AppLayout";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router";
+import routerProvider, {
+  NavigateToResource,
+  CatchAllNavigate,
+  UnsavedChangesNotifier,
+  DocumentTitleHandler,
+} from "@refinedev/react-router";
+import { dataProvider } from "./providers/data";
+import { Login } from "./pages/login";
+import { Register } from "./pages/register";
+import { ForgotPassword } from "./pages/forgot-password";
+import { ErrorComponent } from "./components/refine-ui/layout/error-component";
+import { Layout } from "./components/refine-ui/layout/layout";
+import { Header } from "./components/refine-ui/layout/header";
+import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
+import { Toaster } from "./components/refine-ui/notification/toaster";
+import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
+import "./App.css";
 
 function App() {
-  const [isDark, setIsDark] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDark((current) => !current);
-  };
-
   return (
     <BrowserRouter>
-      <div className={isDark ? "dark" : ""}>
-        <ConfigProvider
-          theme={{
-            ...RefineThemes.Blue,
-            algorithm: isDark
-              ? antdTheme.darkAlgorithm
-              : antdTheme.defaultAlgorithm,
-            token: {
-              ...RefineThemes.Blue.token,
-              fontFamily: '"Inter", sans-serif',
-            },
-          }}
-        >
-          <AntdApp>
+      <GitHubBanner />
+      <RefineKbarProvider>
+        <ThemeProvider>
+          <DevtoolsProvider>
             <Refine
-              routerProvider={routerProvider}
               dataProvider={dataProvider}
-              resources={[
-                {
-                  name: "assignments",
-                  list: "/assignments",
-                  create: "/assignments/create",
-                  edit: "/assignments/edit/:id",
-                },
-              ]}
+              notificationProvider={useNotificationProvider()}
+              routerProvider={routerProvider}
+              options={{
+                syncWithLocation: true,
+                warnWhenUnsavedChanges: true,
+                projectId: "ATFVpm-U2Kvj8-9pHPBj",
+              }}
             >
               <Routes>
-                <Route
-                  path="/"
-                  element={<Navigate to="/assignments" replace />}
-                />
-
-                <Route
-                  element={
-                    <AppLayout
-                      isDark={isDark}
-                      onToggleTheme={toggleTheme}
-                    />
-                  }
-                >
-                  <Route
-                    path="/assignments"
-                    element={<AssignmentList />}
-                  />
-
-                  <Route
-                    path="/assignments/create"
-                    element={
-                      <div>Create assignment page coming next.</div>
-                    }
-                  />
-
-                  <Route
-                    path="/assignments/edit/:id"
-                    element={
-                      <div>Edit assignment page coming next.</div>
-                    }
-                  />
-                </Route>
+                <Route index element={<WelcomePage />} />
               </Routes>
+              <Toaster />
+              <RefineKbar />
+              <UnsavedChangesNotifier />
+              <DocumentTitleHandler />
             </Refine>
-          </AntdApp>
-        </ConfigProvider>
-      </div>
+            <DevtoolsPanel />
+          </DevtoolsProvider>
+        </ThemeProvider>
+      </RefineKbarProvider>
     </BrowserRouter>
   );
 }
