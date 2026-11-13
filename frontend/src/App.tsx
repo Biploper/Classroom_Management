@@ -1,58 +1,68 @@
-import {
-  Refine,
-  GitHubBanner,
-  WelcomePage,
-  Authenticated,
-} from "@refinedev/core";
-import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
+import { Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import { BrowserRouter, Route, Routes, Outlet } from "react-router";
 import routerProvider, {
-  NavigateToResource,
-  CatchAllNavigate,
   UnsavedChangesNotifier,
   DocumentTitleHandler,
 } from "@refinedev/react-router";
+import { Home, NotebookPen } from "lucide-react";
+
 import { dataProvider } from "./providers/data";
-import { Login } from "./pages/login";
-import { Register } from "./pages/register";
-import { ForgotPassword } from "./pages/forgot-password";
 import { ErrorComponent } from "./components/refine-ui/layout/error-component";
 import { Layout } from "./components/refine-ui/layout/layout";
-import { Header } from "./components/refine-ui/layout/header";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
 import { Toaster } from "./components/refine-ui/notification/toaster";
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
+import Dashboard from "./pages/Dashboard";
+import AssignmentList from "./pages/assignments/AssignmentList";
 import "./App.css";
 
 function App() {
   return (
     <BrowserRouter>
-      <GitHubBanner />
       <RefineKbarProvider>
         <ThemeProvider>
-          <DevtoolsProvider>
-            <Refine
-              dataProvider={dataProvider}
-              notificationProvider={useNotificationProvider()}
-              routerProvider={routerProvider}
-              options={{
-                syncWithLocation: true,
-                warnWhenUnsavedChanges: true,
-                projectId: "ATFVpm-U2Kvj8-9pHPBj",
-              }}
-            >
-              <Routes>
-                <Route index element={<WelcomePage />} />
-              </Routes>
-              <Toaster />
-              <RefineKbar />
-              <UnsavedChangesNotifier />
-              <DocumentTitleHandler />
-            </Refine>
-            <DevtoolsPanel />
-          </DevtoolsProvider>
+          <Refine
+            dataProvider={dataProvider}
+            notificationProvider={useNotificationProvider()}
+            routerProvider={routerProvider}
+            resources={[
+              {
+                name: "dashboard",
+                list: "/",
+                meta: { label: "Home", icon: <Home /> },
+              },
+              {
+                name: "assignments",
+                list: "/assignments",
+                meta: { label: "Assignments", icon: <NotebookPen /> },
+              },
+            ]}
+            options={{
+              syncWithLocation: true,
+              warnWhenUnsavedChanges: true,
+              projectId: "ATFVpm-U2Kvj8-9pHPBj",
+            }}
+          >
+            <Routes>
+              <Route
+                element={
+                  <Layout>
+                    <Outlet />
+                  </Layout>
+                }
+              >
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/assignments" element={<AssignmentList />} />
+                <Route path="*" element={<ErrorComponent />} />
+              </Route>
+            </Routes>
+            <Toaster />
+            <RefineKbar />
+            <UnsavedChangesNotifier />
+            <DocumentTitleHandler />
+          </Refine>
         </ThemeProvider>
       </RefineKbarProvider>
     </BrowserRouter>
